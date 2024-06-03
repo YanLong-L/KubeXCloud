@@ -1,0 +1,32 @@
+version: "3"
+# 声明一个名为network的networks,subnet为network的子网地址,默认网关是177.7.0.1
+networks:
+  network:
+    ipam:
+      driver: default
+      config:
+        - subnet: '177.7.0.0/16'
+services:
+  web:
+    container_name: kubeimooc-web
+    image: harbor.kubeimooc.com/kubeimooc/kubeimooc-web:v1.0
+    restart: always
+    environment:
+      BACKEND_HOST: 'http://177.7.0.12:8082/'
+    ports:
+      - '8081:80'
+    depends_on:
+      - server
+    networks:
+      network:
+        ipv4_address: 177.7.0.11
+
+  server:
+    container_name: kubeimooc-server
+    image: harbor.kubeimooc.com/kubeimooc/kubeimooc:v1.0
+    restart: always
+    ports:
+      - '8082:8082'
+    networks:
+      network:
+        ipv4_address: 177.7.0.12
