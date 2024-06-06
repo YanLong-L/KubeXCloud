@@ -12,5 +12,4 @@ func (*K8sRouter) InitK8SRouter(r *gin.Engine) {
 	group := r.Group("/k8s")
 	apiGroup := api.ApiGroupApp.K8SApiGroup
 	group.GET("/listPod", apiGroup.GetPodList)
-	group.GET("/namespace", apiGroup.GetNameSpaceList)
 }
