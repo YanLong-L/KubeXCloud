@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"KubeXCloud/global"
+	pod_req "KubeXCloud/model/pod/request"
+	"KubeXCloud/response"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,7 @@ import (
 type PodApi struct {
 }
 
+// GetPodList 测试用
 func (*PodApi) GetPodList(c *gin.Context) {
 	ctx := context.TODO()
 	list, err := global.KubeConfigSet.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
@@ -24,4 +27,14 @@ func (*PodApi) GetPodList(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
+}
+
+// CreateOrUpdatePod 创建或更新pod
+func (*PodApi) CreateOrUpdatePod(c *gin.Context) {
+	var podReq pod_req.Pod
+	if err := c.ShouldBind(&podReq); err != nil {
+		response.FailWithMessage(c, "参数解析失败，detail："+err.Error())
+		return
+	}
+	// 校验必填项
 }
