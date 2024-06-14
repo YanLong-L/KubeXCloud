@@ -37,4 +37,12 @@ func (*PodApi) CreateOrUpdatePod(c *gin.Context) {
 		return
 	}
 	// 校验必填项
+	if err := podValidate.Validate(&podReq); err != nil {
+		response.FailWithMessage(c, "参数验证失败，detail："+err.Error())
+	}
+	if msg, err := podService.CreateOrUpdatePod(podReq); err != nil {
+		response.FailWithMessage(c, msg)
+	} else {
+		response.SuccessWithMessage(c, msg)
+	}
 }

@@ -84,6 +84,7 @@ type ContainerProbe struct {
 	// 是否打开探针
 	Enable bool `json:"enable"`
 	// 探针类型 tcp/http/exec
+	Type      string         `json:"type"`
 	HttpGet   ProbeHttpGet   `json:"httpGet"`
 	Exec      ProbeCommand   `json:"exec"`
 	TcpSocket ProbeTcpSocket `json:"tcpSocket"`
