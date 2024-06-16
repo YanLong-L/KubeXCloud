@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"strings"
 )
 
 type PodService struct {
@@ -22,6 +23,36 @@ func (*PodService) CreateOrUpdatePod(podReq pod_req.Pod) (msg string, err error)
 	k8sGetPod, err := podApi.Get(ctx, podReq.Base.Name, metav1.GetOptions{})
 	if err == nil {
 		// 更新pod
+		// 1. 先检查pod的参数是否合理，可以先dry run一下
+		k8sPodCopy := *k8sGetPod
+		k8sPodCopy.Name = k8sPod.Name + "-validate"
+		_, err := podApi.Create(ctx, &k8sPodCopy, metav1.CreateOptions{
+			DryRun: []string{metav1.DryRunAll},
+		})
+		if err != nil {
+			errMsg := fmt.Sprintf("Pod[namespace=%s,name=%s]更新失败，detail：%s", k8sPod.Namespace, k8sPod.Name, err.Error())
+			return errMsg, err
+		}
+		//比如pod处于terminating状态 监听pod删除完毕之后 才开始创建pod
+		var labelSelector []string
+		for k, v := range k8sGetPod.Labels {
+			labelSelector = append(labelSelector, fmt.Sprintf("%s=%s", k, v))
+		}
+		//label 格式 app=test,app2=test2
+		watcher, err := podApi.Watch(ctx, metav1.ListOptions{
+			LabelSelector: strings.Join(labelSelector, ","),
+		})
+		// 删除旧pod
+		background := metav1.DeletePropagationBackground
+		var gracePeriodSeconds int64 = 0
+		err = podApi.Delete(ctx, k8sPod.Name, metav1.DeleteOptions{
+			GracePeriodSeconds: &gracePeriodSeconds,
+			PropagationPolicy:  &background,
+		})
+		if err != nil {
+			errMsg := fmt.Sprintf("Pod[namespace=%s,name=%s]更新失败，detail：%s", k8sPod.Namespace, k8sPod.Name, err.Error())
+			return errMsg, err
+		}
 
 		return "", err
 	} else {
