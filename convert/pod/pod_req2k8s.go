@@ -20,11 +20,10 @@ const (
 	volume_emptyDir = "emptyDir"
 )
 
-// @Author: morris
 type Req2K8sConvert struct {
 }
 
-// 将pod 的 请求格式的数据 转换为 k8s 结构的数据
+// PodReq2K8s 将pod 的 请求格式的数据 转换为 k8s 结构的数据
 func (pc *Req2K8sConvert) PodReq2K8s(podReq pod_req.Pod) *corev1.Pod {
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
