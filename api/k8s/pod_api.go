@@ -67,3 +67,15 @@ func (*PodApi) GetPodListOrDetail(c *gin.Context) {
 		response.SuccessWithDetailed(c, "获取Pod列表成功", items)
 	}
 }
+
+// DeletePod 删除pod
+func (*PodApi) DeletePod(c *gin.Context) {
+	namespace := c.Param("namespace")
+	name := c.Param("name")
+	err := podService.DeletePod(namespace, name)
+	if err != nil {
+		response.FailWithMessage(c, "删除Pod失败，detail："+err.Error())
+	} else {
+		response.Success(c)
+	}
+}
